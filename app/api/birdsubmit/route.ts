@@ -69,7 +69,7 @@ if (image && image instanceof File) {
   proxyFormData.append("image", image);
 
   try {
-    const proxyRes = await fetch("https://bird-watcher-backend.onrender.com:5000/predict", {
+    const proxyRes = await fetch("http://qorey.webredirect.org:9000/predict", {
       method: "POST",
       body: proxyFormData,
     });
