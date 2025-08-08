@@ -77,6 +77,11 @@ export default function Index() {
         </>
       )}
 
+      <footer className="mt-12 text-center text-xs text-gray-500 dark:text-gray-400">
+        <p>
+          <strong>Disclaimer:</strong> This AI-powered bird prediction is just for fun and guidance! Results may not be 100% accurate—after all, even the smartest birds get confused sometimes. Please use this tool as a helpful companion, not a definitive source. Happy bird watching!
+        </p>
+      </footer>
     </div>
   );
 }
