@@ -68,7 +68,7 @@ export default function Index() {
       )}
       {species.length > 0 && (
         <>
-          <p class="pt-8">
+          <p className="pt-8">
             This model has been trained on the following bird species:
           </p>
           <pre className="mt-6 p-4 bg-gray-100 dark:bg-gray-800 rounded text-sm w-full max-w-xl whitespace-pre-wrap break-words">
