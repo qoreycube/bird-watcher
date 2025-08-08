@@ -100,7 +100,7 @@ export default function Home() {
               }}
             >
               <pre className="p-4 bg-gray-100 dark:bg-gray-800 rounded text-sm w-full whitespace-pre-wrap break-words">
-              <table className="w-full text-left text-xs">
+                <table className="hidden sm:block w-full text-left text-xs">
                 <thead>
                 <tr>
                   <th className="pb-2 font-semibold text-gray-700 dark:text-gray-200">Species Name</th>
@@ -110,17 +110,41 @@ export default function Home() {
                 {Array.from({ length: Math.ceil(species.length / 5) }).map((_, rowIdx) => (
                   <tr key={rowIdx} className="border-b border-gray-200 dark:border-gray-700">
                   {Array.from({ length: 5 }).map((_, colIdx) => {
-                    const speciesIdx = rowIdx * 5 + colIdx;
-                    return (
-                    <td className="py-1 px-2" key={colIdx}>
-                      {species[speciesIdx] || ""}
-                    </td>
-                    );
+                  const speciesIdx = rowIdx * 5 + colIdx;
+                  return (
+                  <td className="py-1 px-2" key={colIdx}>
+                    {species[speciesIdx] || ""}
+                  </td>
+                  );
                   })}
                   </tr>
                 ))}
                 </tbody>
-              </table>
+                </table>
+                <div className="flex sm:hidden justify-center w-full">
+                  <table className=" w-full max-w-xs text-left text-xs">
+                  <thead>
+                    <tr>
+                    <th className="pb-2 font-semibold text-gray-700 dark:text-gray-200">Species Name</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.from({ length: Math.ceil(species.length / 2) }).map((_, rowIdx) => (
+                    <tr key={rowIdx} className="border-b border-gray-200 dark:border-gray-700">
+                      {Array.from({ length: 2 }).map((_, colIdx) => {
+                      const speciesIdx = rowIdx * 2 + colIdx;
+                      return (
+                        <td className="py-1 px-2" key={colIdx}>
+                        {species[speciesIdx] || ""}
+                        </td>
+                      );
+                      })}
+                    </tr>
+                    ))}
+                  </tbody>
+                  </table>
+                </div>
+
               </pre>
             </div>
           </div>
