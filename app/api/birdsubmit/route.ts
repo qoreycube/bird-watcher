@@ -69,7 +69,7 @@ if (image && image instanceof File) {
   proxyFormData.append("image", image);
 
   try {
-    const proxyRes = await fetch("http://127.0.0.1:9000", {
+    const proxyRes = await fetch("http://127.0.0.1:5000", {
       method: "POST",
       body: proxyFormData,
     });
