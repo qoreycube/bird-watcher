@@ -16,7 +16,7 @@ export default function Home() {
         const response = await fetch('/api/species');
         if (response.ok) {
           const data: SpeciesResponse = await response.json();
-          setSpecies(data.species);
+          setSpecies(data.species.sort());
         }
       } catch (error) {
         setSpecies([]);
@@ -92,11 +92,35 @@ export default function Home() {
               <span className="ml-2">{showSpecies ? "▲" : "▼"}</span>
             </button>
             <div
-              className={`transition-all duration-500 ease-in-out overflow-hidden w-full max-w-xl ${showSpecies ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-              style={{marginTop: showSpecies ? '0.5rem' : '0'}}
+              className={`transition-all duration-500 ease-in-out overflow-hidden w-full max-w-xl ${showSpecies ? 'opacity-100' : 'opacity-0'}`}
+              style={{
+              marginTop: showSpecies ? '0.5rem' : '0',
+              maxHeight: showSpecies ? 'none' : '0',
+              height: showSpecies ? 'auto' : '0',
+              }}
             >
               <pre className="p-4 bg-gray-100 dark:bg-gray-800 rounded text-sm w-full whitespace-pre-wrap break-words">
-                {species.join(", ")}
+              <table className="w-full text-left text-xs">
+                <thead>
+                <tr>
+                  <th className="pb-2 font-semibold text-gray-700 dark:text-gray-200">Species Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                {Array.from({ length: Math.ceil(species.length / 5) }).map((_, rowIdx) => (
+                  <tr key={rowIdx} className="border-b border-gray-200 dark:border-gray-700">
+                  {Array.from({ length: 5 }).map((_, colIdx) => {
+                    const speciesIdx = rowIdx * 5 + colIdx;
+                    return (
+                    <td className="py-1 px-2" key={colIdx}>
+                      {species[speciesIdx] || ""}
+                    </td>
+                    );
+                  })}
+                  </tr>
+                ))}
+                </tbody>
+              </table>
               </pre>
             </div>
           </div>
