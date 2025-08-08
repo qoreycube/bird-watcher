@@ -1,20 +1,31 @@
 "use client";
 
+import { useState } from "react";
+
 export default function Index() {
+  const [result, setResult] = useState<string | null>(null);
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const formData = new FormData();
     formData.append('image', file);
     try {
-      await fetch('/api/birdsubmit', {
+      const response = await fetch('/api/birdsubmit', {
         method: 'POST',
         body: formData,
       });
+      if (response.ok) {
+        const data = await response.json();
+        setResult(JSON.stringify(data, null, 2));
+      } else {
+        setResult('Failed to submit image.');
+      }
     } catch (error) {
-      console.error('Error submitting image:', error);
+      setResult('Error submitting image: ' + String(error));
     }
-  }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 p-8">
       <h1 className="text-4xl font-bold mb-8 text-center text-gray-900 dark:text-white">Bird Watcher</h1>
@@ -29,6 +40,9 @@ export default function Index() {
           onChange={handleImageChange}
         />
       </form>
+      {result && (
+        <pre className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded text-sm w-full max-w-xl overflow-auto">{result}</pre>
+      )}
     </div>
   );
 }
