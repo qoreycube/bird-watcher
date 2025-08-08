@@ -1,11 +1,27 @@
 "use client";
 
 import { BirdPredictionResponse } from "@/types/bird-prediction-response";
-import { resumePluginState } from "next/dist/build/build-context";
-import { useState } from "react";
+import { SpeciesResponse } from "@/types/species-response";
+import { useState, useEffect } from "react";
 
 export default function Index() {
   const [result, setResult] = useState<BirdPredictionResponse | string | null>(null);
+  const [species, setSpecies] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      try {
+        const response = await fetch('/api/species');
+        if (response.ok) {
+          const data: SpeciesResponse = await response.json();
+          setSpecies(data.species);
+        }
+      } catch (error) {
+        setSpecies([]);
+      }
+    };
+    fetchSpecies();
+  }, []);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -19,7 +35,6 @@ export default function Index() {
       });
       if (response.ok) {
         const data = await response.json() as BirdPredictionResponse;
-        
         setResult(data);
       } else {
         setResult('Failed to submit image.');
@@ -44,14 +59,24 @@ export default function Index() {
         />
       </form>
       {result && typeof result === "string" &&  (
-          <pre className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded text-sm w-full max-w-xl overflow-auto">There was an error predicting your bird species. Please try again later</pre>
-        )}
-        { result && typeof result === "object"  && (
-          <pre className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded text-sm w-full max-w-xl overflow-auto">
-            {`There is a ${(result.confidence * 100).toFixed(2)}% chance that your image was a ${result.predicted_species}.`}
+        <pre className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded text-sm w-full max-w-xl overflow-auto">There was an error predicting your bird species. Please try again later</pre>
+      )}
+      { result && typeof result === "object"  && (
+        <pre className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded text-sm w-full max-w-xl overflow-auto">
+          {`There is a ${(result.confidence * 100).toFixed(2)}% chance that your image was a ${result.predicted_species}.`}
+        </pre>
+      )}
+      {species.length > 0 && (
+        <>
+          <p class="pt-8">
+            This model has been trained on the following bird species:
+          </p>
+          <pre className="mt-6 p-4 bg-gray-100 dark:bg-gray-800 rounded text-sm w-full max-w-xl whitespace-pre-wrap break-words">
+            {species.join(", ")}
           </pre>
-        )
-        }
+        </>
+      )}
+
     </div>
   );
 }
