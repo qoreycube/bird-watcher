@@ -4,9 +4,10 @@ import { BirdPredictionResponse } from "@/types/bird-prediction-response";
 import { SpeciesResponse } from "@/types/species-response";
 import { useState, useEffect } from "react";
 
-export default function Index() {
+export default function Home() {
   const [result, setResult] = useState<BirdPredictionResponse | string | null>(null);
   const [species, setSpecies] = useState<string[]>([]);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSpecies = async () => {
@@ -26,6 +27,7 @@ export default function Index() {
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setImagePreview(URL.createObjectURL(file));
     const formData = new FormData();
     formData.append('image', file);
     try {
@@ -57,12 +59,19 @@ export default function Index() {
           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           onChange={handleImageChange}
         />
+        {imagePreview && (
+          <img
+            src={imagePreview}
+            alt="Selected bird preview"
+            className="mt-4 rounded shadow w-40 h-40 object-cover border border-gray-300 dark:border-gray-700"
+          />
+        )}
       </form>
       {result && typeof result === "string" &&  (
-        <pre className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded text-sm w-full max-w-xl overflow-auto">There was an error predicting your bird species. Please try again later</pre>
+        <pre className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded text-sm w-full max-w-xl overflow-auto whitespace-pre-wrap break-words">There was an error predicting your bird species. Please try again later</pre>
       )}
       { result && typeof result === "object"  && (
-        <pre className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded text-sm w-full max-w-xl overflow-auto">
+        <pre className="mt-6 p-4 bg-gray-200 dark:bg-gray-700 rounded text-sm w-full max-w-xl overflow-auto whitespace-pre-wrap break-words">
           {`There is a ${(result.confidence * 100).toFixed(2)}% chance that your image was a ${result.predicted_species}.`}
         </pre>
       )}
