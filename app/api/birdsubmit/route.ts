@@ -8,6 +8,8 @@ type BirdUploadRateLimiterGlobal = typeof globalThis & {
 };
 
 export async function POST(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const model = searchParams.get('model');
   const formData = await request.formData();
   const image = formData.get("image");
   // Simple in-memory rate limiter (per process)
@@ -69,7 +71,19 @@ if (image && image instanceof File) {
   proxyFormData.append("image", image);
 
   try {
-    const proxyRes = await fetch("http://qorey.webredirect.org:9000/predict", {
+    // Detect if request is from localhost
+    const host = request.headers.get("host") || "";
+    let endpoint: string;
+    if (host.startsWith("localhost") || host.startsWith("127.0.0.1")) {
+      endpoint = model === "hf"
+        ? "http://127.0.0.1:9000/hf_predict"
+        : "http://127.0.0.1:9000/predict";
+    } else {
+      endpoint = model === "hf"
+        ? "http://qorey.webredirect.org:9000/hf_predict"
+        : "http://qorey.webredirect.org:9000/predict";
+    }
+    const proxyRes = await fetch(endpoint, {
       method: "POST",
       body: proxyFormData,
     });
