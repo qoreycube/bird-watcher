@@ -48,6 +48,21 @@ export default function Home() {
     handleImageFile(file);
   };
 
+
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      try {
+        const response = await fetch("/api/species");
+        if (response.ok) {
+          const data: SpeciesResponse = await response.json();
+          setSpecies(data.species.sort());
+        }
+      } catch (error) {
+        setSpecies([]);
+      }
+    };
+    fetchSpecies();
+  }, []);
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 p-8">
       <div className="w-full max-w-[1280px] mx-auto flex flex-col items-center">
@@ -64,7 +79,7 @@ export default function Home() {
             onClick={() => setModelType('self')}
             aria-pressed={modelType === 'self'}
           >
-            Self Trained
+            Self-trained
           </button>
           <button
             type="button"
@@ -72,11 +87,11 @@ export default function Home() {
             onClick={() => setModelType('hf')}
             aria-pressed={modelType === 'hf'}
           >
-            Hugging Face
+            Hugging Face Pretrained Model
           </button>
         </div>
 
-        <form className="flex flex-col items-center gap-4 bg-gray-100 dark:bg-gray-800 p-6 rounded shadow-md w-full">
+        <form className="flex flex-col items-center gap-4 bg-gray-100 dark:bg-gray-800 p-6 rounded shadow-md max-w-[400px]">
           {/* Camera/Gallery button */}
           <button
             type="button"
@@ -111,8 +126,8 @@ export default function Home() {
           />
 
           {/* Drag and drop area with hover state */}
-          <div
-            className={`relative w-full h-32 sm:h-40 flex items-center justify-center text-sm text-gray-500 border-2 border-dashed rounded-lg mb-2 transition-colors duration-200 ${dropActive ? 'border-blue-600 bg-blue-50 dark:bg-blue-900' : 'border-blue-300 bg-white dark:bg-gray-800'}`}
+            <div
+            className={`relative w-full max-w-[300px] p-8 h-32 sm:h-40 flex items-center justify-center text-sm text-gray-500 border-2 border-dashed rounded-lg mb-2 transition-colors duration-200 ${dropActive ? 'border-blue-600 bg-blue-50 dark:bg-blue-900' : 'border-blue-300 bg-white dark:bg-gray-800'}`}
             onDragOver={e => { e.preventDefault(); e.stopPropagation(); setDropActive(true); }}
             onDragLeave={e => { e.preventDefault(); e.stopPropagation(); setDropActive(false); }}
             onDrop={e => {
@@ -123,8 +138,8 @@ export default function Home() {
               handleImageFile(file);
             }}
             onClick={() => document.getElementById('image-upload')?.click()}
-          >
-            <span className={`pointer-events-none transition-colors duration-200 text-lg font-semibold ${dropActive ? 'text-blue-700 dark:text-blue-200' : 'text-gray-500 dark:text-gray-300'}`}>
+            >
+            <span className={`pointer-events-none transition-colors duration-200 text-lg font-semibold text-center w-full ${dropActive ? 'text-blue-700 dark:text-blue-200' : 'text-gray-500 dark:text-gray-300'}`}>
               {dropActive ? 'Release to drop your image!' : 'Drop an image here or click to select'}
             </span>
             <input
@@ -135,7 +150,7 @@ export default function Home() {
               className="hidden"
               onChange={handleImageChange}
             />
-          </div>
+            </div>
 
           {imagePreview && (
             <img
@@ -157,33 +172,85 @@ export default function Home() {
           </pre>
         )}
 
-        {species.length > 0 && (
+       {species.length > 0 && (
           <div className="pt-8 w-full flex flex-col items-center">
             <button
               type="button"
               className="px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded shadow hover:bg-blue-200 dark:hover:bg-blue-800 font-medium mb-2"
               onClick={() => setShowSpecies((prev) => !prev)}
-              aria-pressed={showSpecies}
             >
-              {`This model has been trained on ${species.length} species`}
+              {`The self-trained model has learned ${species.length} species`}
               <span className="ml-2">{showSpecies ? "▲" : "▼"}</span>
             </button>
             <div
-              className={`transition-all duration-500 ease-in-out overflow-hidden w-full max-w-xl ${showSpecies ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-              style={{marginTop: showSpecies ? '0.5rem' : '0'}}
+              className={`transition-all duration-500 ease-in-out overflow-hidden w-full max-w-xl ${
+                showSpecies ? "opacity-100" : "opacity-0"
+              }`}
+              style={{
+                marginTop: showSpecies ? "0.5rem" : "0",
+                maxHeight: showSpecies ? "none" : "0",
+                height: showSpecies ? "auto" : "0",
+              }}
             >
-              {/* Mobile: 3-column grid, Desktop: <pre> tag */}
-              <div className="block sm:hidden p-4 bg-gray-100 dark:bg-gray-800 rounded text-sm w-full">
-                <div className="grid grid-cols-3 gap-2">
-                  {species.map((sp, idx) => (
-                    <div key={idx} className="py-1 px-2 bg-white dark:bg-gray-900 rounded text-center border border-gray-200 dark:border-gray-700 text-xs">
-                      {sp}
-                    </div>
-                  ))}
+              <pre className="p-4 bg-gray-100 dark:bg-gray-800 rounded text-sm w-full whitespace-pre-wrap break-words">
+                <table className="hidden sm:block w-full text-left text-xs">
+                  <thead>
+                    <tr>
+                      <th className="pb-2 font-semibold text-gray-700 dark:text-gray-200">
+                        Species Name
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.from({ length: Math.ceil(species.length / 5) }).map(
+                      (_, rowIdx) => (
+                        <tr
+                          key={rowIdx}
+                          className="border-b border-gray-200 dark:border-gray-700"
+                        >
+                          {Array.from({ length: 5 }).map((_, colIdx) => {
+                            const speciesIdx = rowIdx * 5 + colIdx;
+                            return (
+                              <td className="py-1 px-2" key={colIdx}>
+                                {species[speciesIdx] || ""}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+                <div className="flex sm:hidden justify-center w-full">
+                  <table className=" w-full max-w-xs text-left text-xs">
+                    <thead>
+                      <tr>
+                        <th className="pb-2 font-semibold text-gray-700 dark:text-gray-200">
+                          Species Name
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.from({
+                        length: Math.ceil(species.length / 2),
+                      }).map((_, rowIdx) => (
+                        <tr
+                          key={rowIdx}
+                          className="border-b border-gray-200 dark:border-gray-700"
+                        >
+                          {Array.from({ length: 2 }).map((_, colIdx) => {
+                            const speciesIdx = rowIdx * 2 + colIdx;
+                            return (
+                              <td className="py-1 px-2" key={colIdx}>
+                                {species[speciesIdx] || ""}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              </div>
-              <pre className="hidden sm:block p-4 bg-gray-100 dark:bg-gray-800 rounded text-sm w-full whitespace-pre-wrap break-words">
-                {species.join(", ")}
               </pre>
             </div>
           </div>
