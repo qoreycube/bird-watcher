@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getApiBaseUrl } from "@/lib/apiBaseUrl";
 import sharp from "sharp";
 
 // Store upload timestamps per IP
@@ -66,23 +67,17 @@ if (image && image instanceof File) {
   // You can process the image here (e.g., save to disk, cloud, etc.)
   // For now, just return a success response
 
-  // Proxy the image to the external API
+  // Proxy the (possibly resized) image to the external API
   const proxyFormData = new FormData();
-  proxyFormData.append("image", image);
+  const imageToSend = formData.get("image");
+  if (!imageToSend || !(imageToSend instanceof File)) {
+    return NextResponse.json({ error: "No image to send" }, { status: 400 });
+  }
+  proxyFormData.append("image", imageToSend);
 
   try {
-    // Detect if request is from localhost
-    const host = request.headers.get("host") || "";
-    let endpoint: string;
-    if (host.startsWith("localhost") || host.startsWith("127.0.0.1")) {
-      endpoint = model === "hf"
-        ? "http://127.0.0.1:9000/hf_predict"
-        : "http://127.0.0.1:9000/predict";
-    } else {
-      endpoint = model === "hf"
-        ? "http://qorey.webredirect.org:9000/hf_predict"
-        : "http://qorey.webredirect.org:9000/predict";
-    }
+  const base = getApiBaseUrl(request, false);
+  const endpoint = `${base}/${model === "hf" ? "hf_predict" : "predict"}`;
     const proxyRes = await fetch(endpoint, {
       method: "POST",
       body: proxyFormData,

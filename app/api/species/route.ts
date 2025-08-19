@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getApiBaseUrl } from '@/lib/apiBaseUrl';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const proxyRes = await fetch('http://qorey.webredirect.org:9000/species');
+  const base = getApiBaseUrl(request, false);
+  const proxyRes = await fetch(`${base}/species`);
     const data = await proxyRes.json();
     return NextResponse.json(data, { status: proxyRes.status });
   } catch (error) {
