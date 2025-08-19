@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const base = getApiBaseUrl(request, true);
+    const base = getApiBaseUrl(request);
     const upstreamUrl = `${base}/ollama/stream?prompt=${encodeURIComponent(prompt)}`;
 
     const upstreamRes = await fetch(upstreamUrl, {

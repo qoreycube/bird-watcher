@@ -7,10 +7,10 @@ import type { NextRequest } from "next/server";
  *
  * preferHttps controls the remote scheme only (local is always http).
  */
-export function getApiBaseUrl(request: NextRequest, preferHttps = false): string {
+export function getApiBaseUrl(request: NextRequest): string {
   const hostHeader = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
   const isLocal = /^(localhost|127\.0\.0\.1)(:\d+)?$/i.test(hostHeader);
   if (isLocal) return "http://127.0.0.1:9000";
-  const scheme = preferHttps ? "https" : "http";
-  return `${scheme}://qorey.webredirect.org:9000`;
+
+  return `http://qorey.webredirect.org:9000`;
 }

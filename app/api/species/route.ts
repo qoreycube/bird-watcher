@@ -4,7 +4,7 @@ import { getApiBaseUrl } from '@/lib/apiBaseUrl';
 
 export async function GET(request: NextRequest) {
   try {
-  const base = getApiBaseUrl(request, false);
+  const base = getApiBaseUrl(request);
   const proxyRes = await fetch(`${base}/species`);
     const data = await proxyRes.json();
     return NextResponse.json(data, { status: proxyRes.status });

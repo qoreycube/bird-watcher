@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing prompt parameter" }, { status: 400 });
   }
   try {
-    const base = getApiBaseUrl(request, true);
+    const base = getApiBaseUrl(request);
     const res = await fetch(`${base}/ollama?prompt=${encodeURIComponent(prompt)}`, {
       headers: {
         Accept: "application/json, text/plain, */*",

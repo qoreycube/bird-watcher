@@ -76,7 +76,7 @@ if (image && image instanceof File) {
   proxyFormData.append("image", imageToSend);
 
   try {
-  const base = getApiBaseUrl(request, false);
+  const base = getApiBaseUrl(request);
   const endpoint = `${base}/${model === "hf" ? "hf_predict" : "predict"}`;
     const proxyRes = await fetch(endpoint, {
       method: "POST",
