@@ -6,12 +6,15 @@
   --foreground: #171717;
 }
 
+/* Note: If using Tailwind v4 inline theme, uncomment below. Otherwise, keep commented to avoid unknown at-rule errors. */
+/*
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+*/
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -24,6 +27,35 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Pointer cursor for all buttons */
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+button:disabled,
+button[disabled] {
+  cursor: not-allowed;
+}
+
+/* Subtle animated sheen for busy buttons */
+.busy-animated {
+  overflow: hidden;
+}
+.busy-animated::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.18) 40%, rgba(255,255,255,0.08) 80%);
+  transform: translateX(-100%);
+  animation: busy-sheen 1.2s linear infinite;
+}
+
+@keyframes busy-sheen {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* Markdown styles for code blocks and tables */
@@ -74,6 +106,7 @@ thead th {
 .markdown-body ul {
   list-style-type: disc;
   list-style-position: outside;
+  padding-left: 2.25rem;
 }
 
 .markdown-body ol {
@@ -106,4 +139,61 @@ thead th {
   margin: 1rem 0;
   border: 0;
   border-top: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+/* Ordered list continuation only across adjacent top-level ol blocks */
+.markdown-body {
+  counter-reset: md-ol-counter;
+}
+/* Reset when a top-level ol immediately follows a non-ol block (paragraphs, headings, hr, etc.) */
+.markdown-body > *:not(ol) + ol {
+  counter-reset: md-ol-counter;
+}
+
+/* Restart numbering at section boundaries (headings and horizontal rules) */
+/* Simpler rule: any top-level ol following a heading starts a new sequence */
+.markdown-body > h1 ~ ol,
+.markdown-body > h2 ~ ol,
+.markdown-body > h3 ~ ol,
+.markdown-body > h4 ~ ol,
+.markdown-body > h5 ~ ol,
+.markdown-body > h6 ~ ol,
+.markdown-body > hr ~ ol {
+  counter-reset: md-ol-counter;
+}
+
+/* Style only top-level ol with custom counter; nested ol keep default numbering */
+.markdown-body > ol {
+  list-style: none;
+  padding-left: 0; /* we'll pad individual items instead for consistent alignment */
+}
+
+.markdown-body > ol > li {
+  position: relative;
+  counter-increment: md-ol-counter;
+  padding-left: 3em; /* reserve space for 2–3 digit numbers + dot */
+}
+
+.markdown-body > ol > li::before {
+  content: counter(md-ol-counter) ". ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: inherit;
+  width: 2.2em;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums; /* align digits evenly */
+}
+
+/* Extra indentation for nested unordered lists within ordered list items */
+.markdown-body ol > li > ul {
+  margin-left: 0.5rem;
+  padding-left: 2.25rem;   /* deeper indent so bullets are clearly nested */
+}
+
+/* Keep nested ordered lists readable without affecting the top-level counter */
+.markdown-body ol > li > ol {
+  margin-left: 0.5rem;
+  padding-left: 1.5rem;
 }

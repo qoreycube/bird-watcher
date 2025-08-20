@@ -10,7 +10,10 @@ import type { NextRequest } from "next/server";
 export function getApiBaseUrl(request: NextRequest): string {
   const hostHeader = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
   const isLocal = /^(localhost|127\.0\.0\.1)(:\d+)?$/i.test(hostHeader);
-  if (isLocal) return "http://127.0.0.1:9000";
+  const envLocal = process.env.LOCAL_API_BASE || "http://127.0.0.1:9000";
+  const envRemote = process.env.REMOTE_API_BASE || "http://some.server.com:9000";
 
-  return `http://qorey.webredirect.org:9000`;
+  const sanitize = (u: string) => u.replace(/\/$/, "");
+  if (isLocal) return sanitize(envLocal);
+  return sanitize(envRemote);
 }
